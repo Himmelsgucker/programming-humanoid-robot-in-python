@@ -54,7 +54,26 @@ class PIDController(object):
         '''
         # YOUR CODE HERE
 
-        return self.u
+        #model prediciton
+        #angle(t) = angle(t-1) + speed * dt
+        y_predict = sensor + self.u * self.dt
+        self.y.append(y_predict)
+
+        self.e3 = target - sensor
+        #target - ( sensor - self.y.popleft + y_predict)
+
+        #controller
+        P_Regler = self.Kp * (self.e3 - self.e2) #Gegenwart
+        I_Regler = self.Ki * self.dt * self.e3 #Zukunft
+        D_Regler = self.Kd / self.dt * (self.e3 + 2 * self.e2 + self.e1) #Vergang.h.
+
+        #difference-storing
+        self.e1 = self.e2
+        self.e2 = self.e3
+
+        self.u = self.u + P_Regler + I_Regler + D_Regler
+
+	return self.u # u = speed
 
 
 class PIDAgent(SparkAgent):
